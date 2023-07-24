@@ -20,7 +20,7 @@ const server = express();
 
 server.use(cors());
 server.use(express.json({limit: "25mb"}));
-server.set('view engine', 'ejs');
+// server.set('view engine', 'ejs');
 
 
 
@@ -31,8 +31,8 @@ async function getConnection() {
     {
       host: process.env.DB_HOST || "localhost",
       user: process.env.DB_USER || "root",
-      password: process.env.DB_PASS,  // <-- Pon aquí tu contraseña o en el fichero /.env en la carpeta raíz
-      database: process.env.DB_NAME || "Clase",
+      password: process.env.DB_PASS, 
+      database: process.env.DB_NAME || "recetas_db",
     }
   );
 
@@ -54,33 +54,40 @@ server.listen(port, () => {
 
 // Endpoints
 
-// GET /api/items
+// GET /recetas
+//obtener todos los datos de la BD
 
-server.get("/api/items", async (req, res) => {
-
-  const selectProducts = "SELECT * FROM products";
-
+server.get("/recetas", async (req, res) => {
+  const selectRecetas = "SELECT * FROM recetas ";
   const conn = await getConnection();
-
-  const [results] = await conn.query(selectProducts);
-
-  console.log(results);
+  const [results] = await conn.query(selectRecetas);
 
   conn.end();
 
-  res.json(results);
+  res.json ({
+    info: {
+        count: results.length, //número de elementos del listado.
+    },
+    results: results //listado  de recetas.
+})
 });
 
 
 
-// GET /details
+// GET /recetas/:id
+// Obtener una receta por su id
 
-server.get("/details", async (req, res) => {
+server.get("/recetas/:id", async (req, res) => {
+  const recetaId = req.params.id;
+  const selectId = "SELECT * FROM recetas WHERE id = ?";
+  const conn = await getConnection();
+  const [results] = await conn.query(selectId, [recetaId]);
 
-  res.render('details', {})
+  conn.end();
+
+  res.json (results);
+  
 });
 
 
-// Serv estáticos
 
-server.use(express.static("./src/public_html"));
