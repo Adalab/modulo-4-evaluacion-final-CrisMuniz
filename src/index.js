@@ -8,7 +8,11 @@
 const express = require("express");
 const cors = require("cors");
 const mysql = require("mysql2/promise");
-require('dotenv').config()
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+
+
 
 
 
@@ -29,10 +33,10 @@ server.use(express.json({limit: "25mb"}));
 async function getConnection() {
   const connection = await mysql.createConnection(
     {
-      host: process.env.DB_HOST || "sql.freedb.tech",
-      user: process.env.DB_USER || "freedb_cristina",
+      host: process.env.DB_HOST || "localhost",
+      user: process.env.DB_USER || "root",
       password: process.env.DB_PASS, 
-      database: process.env.DB_NAME || "freedb_recetas_db",
+      database: process.env.DB_NAME || "recetas_db",
     }
   );
 
@@ -40,7 +44,6 @@ async function getConnection() {
 
   return connection;
 }
-
 
 
 // Poner a escuchar el servidor
@@ -157,6 +160,39 @@ server.delete("/recetas/:id", async (req, res) => {
       success: false,
       message: ("Ha ocurrido un error"),
   });
+  }
+});
+
+//POST/registro
+//hacer el registro de un nuevo usuario
+server.post("/registro", async (req, res) => {
+  try {
+    const newUsuario = req.body;
+    const insert = "INSERT INTO usuarios (nombre, email, `password`) VALUES (?, ?, ?)";
+    const conn = await getConnection();
+    const passwordHash = await bcrypt.hash(newUsuario.password, 10);
+
+    const [result] = await conn.query(insert, [newUsuario.nombre, newUsuario.email, passwordHash]);
+    const newUsuarioId = result.insertId;
+    conn.end();
+
+    const token = jwt.sign({
+      id:newUsuarioId,
+      email:newUsuario.email,
+    },
+    "secret"
+    );
+    res.json({
+      success: true,
+      token: token,
+    });
+
+  } catch (error) {
+    console.log(error)
+    res.json({
+      success:false,
+      message:error,
+    })
   }
 });
 
