@@ -115,5 +115,27 @@ server.post("/recetas", async (req, res) => {
   }
 });
 
+//PUT/recetas/:id
+//Actualizar una receta donde el id es el identificador de dicha receta.Se espera por el body la receta actualizada.La respuesta sera un json true o false con sus mensajes.
+server.put("/recetas/:id", async (req, res) => {
+  const recetaId = req.params.id;
+  const {nombre, ingredientes, instrucciones} = req.body;
+  try{
+
+  const update = "UPDATE recetas SET nombre= ?, ingredientes= ?, instrucciones= ? WHERE id = ?";
+  const conn = await getConnection();
+  const [result] = await conn.query(update, [nombre, ingredientes, instrucciones, recetaId]);
+  conn.end();
+
+  res.json ({
+      success: true 
+  });
+  } catch (error) {
+    res.json ({
+      success: false,
+      message: error,
+  });
+  }
+});
 
 
