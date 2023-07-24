@@ -1,7 +1,5 @@
 // Servidor Express
 
-// Para probar los ficheros estáticos del fronend, entrar en <http://localhost:4500/>
-// Para probar el API, entrar en <http://localhost:4500/api/items>
 
 // Imports
 
@@ -24,7 +22,7 @@ const server = express();
 
 server.use(cors());
 server.use(express.json({limit: "25mb"}));
-// server.set('view engine', 'ejs');
+
 
 
 
@@ -112,7 +110,7 @@ server.post("/recetas", async (req, res) => {
   console.log(newId)
   } catch (error) {
     res.json ({
-      success: false,//Puede ser true o false
+      success: false,
       message:("Revisa tus datos, tienes algun error")
   });
   }
