@@ -89,5 +89,31 @@ server.get("/recetas/:id", async (req, res) => {
   
 });
 
+//POST/recetas
+//insertar en el body la info de una receta.La respuesta debe ser un json con la info de si fue exitosa y su id.
+
+server.post("/recetas", async (req, res) => {
+  const newReceta = req.body;
+  try{
+
+  const insert = "INSERT INTO recetas (nombre, ingredientes, instrucciones) VALUES (?, ?, ?)";
+  const conn = await getConnection();
+  const [results] = await conn.query(insert, [ newReceta.nombre, newReceta.ingredientes, newReceta.instrucciones]); 
+  conn.end();
+  
+
+  res.json ({
+      success: true,
+      id: results.insertId,
+  });
+  console.log(newId)
+  } catch (error) {
+    res.json ({
+      success: false,//Puede ser true o false
+      message:("Revisa tus datos, tienes algun error")
+  });
+  }
+});
+
 
 
