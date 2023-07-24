@@ -138,4 +138,26 @@ server.put("/recetas/:id", async (req, res) => {
   }
 });
 
+//DELETE/recetas/:id
+//Eliminar una receta donde el id es la receta a eliminar.La respuesta será un json si fue exitosa o no.
+server.delete("/recetas/:id", async (req, res) => {
+  const recetaId = req.params.id;
+  try{
+
+  const deleteSql = "DELETE FROM recetas WHERE id= ?";
+  const conn = await getConnection();
+  const [result] = await conn.query(deleteSql, [recetaId]);
+  conn.end();
+
+  res.json ({
+      success: true 
+  });
+  } catch (error) {
+    res.json ({
+      success: false,
+      message: ("Ha ocurrido un error"),
+  });
+  }
+});
+
 
